@@ -1,0 +1,5 @@
+#loginCover{background: url("/static/images/flower.jpg");}
+body{background: rgb(16, 111, 42);}
+#submit{background-color: rgb(44, 170, 20);}
+#submit:hover{background-color: rgb(56, 197, 29);}
+#submit:active{background-color: rgb(67, 231, 35);}

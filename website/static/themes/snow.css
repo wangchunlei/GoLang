@@ -1,0 +1,5 @@
+#loginCover{background: url("/static/images/snow.jpg");}
+body{background: rgb(32, 132, 197);}
+#submit{background-color: rgb(9, 129, 167);}
+#submit:hover{background-color: rgb(12, 142, 184);}
+#submit:active{background-color: rgb(1, 166, 218);}

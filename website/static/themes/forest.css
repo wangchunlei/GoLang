@@ -1,0 +1,5 @@
+#loginCover{background: url("/static/images/forest.jpg");}
+body{background: rgb(22, 104, 32);}
+#submit{background-color: rgb(77, 189, 33);}
+#submit:hover{background-color: rgb(82, 209, 33);}
+#submit:active{background-color: rgb(92, 224, 40);}

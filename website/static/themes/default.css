@@ -1,0 +1,7 @@
+/*-------OPTIONAL SETTINGS------*/
+#loginCover{background: url("/static/images/cover1.jpg");}/*Cover Image*/
+body{background: rgb(38, 90, 124);}/*Login Form Background*/
+#submit{background-color: rgb(9, 129, 167);}/*Submit button Color*/
+#submit:hover{background-color: rgb(12, 142, 184);}/*Submit Hover Button Color*/
+#submit:active{background-color: rgb(1, 166, 218);}/*Submit Button Color When Mouse is Down on it*/
+/*------------------------------*/

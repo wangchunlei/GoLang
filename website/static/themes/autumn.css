@@ -1,0 +1,5 @@
+#loginCover{background: url("/static/images/autumn.jpg");}
+body{background: rgb(228, 140, 29);}
+#submit{background-color: rgb(211, 126, 19);}
+#submit:hover{background-color: rgb(231, 139, 23);}
+#submit:active{background-color: rgb(255, 152, 23);}
