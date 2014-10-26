@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/elazarl/goproxy"
 	"github.com/elazarl/goproxy/transport"
-	"github.com/wangchunlei/GoLang/try"
 	"io"
 	"log"
 	"net"
@@ -233,14 +232,7 @@ var skipHosts = []string{"192.168.70."}
 func main() {
 	// os.Setenv("HTTP_PROXY", "http://127.0.0.1:8087")
 	// os.Setenv("HTTPS_PROXY", "http://127.0.0.1:8087")
-	for {
-		try.This(func() {
-			start()
-		}).Catch(func(e try.E) {
-			// Print crash
-			fmt.Println(e)
-		})
-	}
+	start()
 }
 
 func start() {

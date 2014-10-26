@@ -12,24 +12,23 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Println("Usage: ", os.Args[0], "http://host:port/page")
-		os.Exit(1)
-	}
-	url, err := url.Parse(os.Args[2])
+	// os.Setenv("HTTP_PROXY", "http://203.233.63.168")
+	// os.Setenv("HTTPS_PROXY", "http://203.233.63.168")
+	url, err := url.Parse("http://life-force.appspot.com")
 	checkError(err)
 
-	//proxyUrl, _ := url.Parse("http://127.0.0.1:8087")
-	// transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
-	transport := &http.Transport{}
+	proxyUrl, _ := url.Parse("http://203.233.63.168")
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	// transport := &http.Transport{}
 	client := &http.Client{Transport: transport}
-
-	request, err := http.NewRequest(os.Args[1], url.String(), nil)
+	fmt.Println(url.String())
+	request, err := http.NewRequest("GET", url.String(), nil)
 	// only accept UTF-8
 	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
 	checkError(err)
 
 	response, err := client.Do(request)
+	fmt.Println(response)
 	if response.Status != "200 OK" {
 		fmt.Println(response.Status)
 		os.Exit(2)
