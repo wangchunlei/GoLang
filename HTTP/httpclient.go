@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// url, err := url.Parse("http://life-force.appspot.com")
-	url, err := url.Parse("http://ip")
+	url, err := url.Parse("https://life-force.appspot.com")
 	checkError(err)
 
 	// proxyUrl, _ := url.Parse("http://ip")
@@ -22,7 +22,7 @@ func main() {
 	client := &http.Client{Transport: transport}
 	fmt.Println(url.String())
 	request, err := http.NewRequest("GET", url.String(), nil)
-	request.Header.Add("Host", "life-force.appspot.com")
+	request.Header.Add("Host", "google ip")
 	// only accept UTF-8
 	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
 	checkError(err)
