@@ -12,17 +12,17 @@ import (
 )
 
 func main() {
-	// os.Setenv("HTTP_PROXY", "http://203.233.63.168")
-	// os.Setenv("HTTPS_PROXY", "http://203.233.63.168")
-	url, err := url.Parse("http://life-force.appspot.com")
+	// url, err := url.Parse("http://life-force.appspot.com")
+	url, err := url.Parse("http://ip")
 	checkError(err)
 
-	proxyUrl, _ := url.Parse("http://203.233.63.168")
-	transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
-	// transport := &http.Transport{}
+	// proxyUrl, _ := url.Parse("http://ip")
+	// transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	transport := &http.Transport{}
 	client := &http.Client{Transport: transport}
 	fmt.Println(url.String())
 	request, err := http.NewRequest("GET", url.String(), nil)
+	request.Header.Add("Host", "life-force.appspot.com")
 	// only accept UTF-8
 	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
 	checkError(err)
