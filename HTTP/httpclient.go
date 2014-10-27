@@ -4,6 +4,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,22 +13,20 @@ import (
 )
 
 func main() {
-	// url, err := url.Parse("http://life-force.appspot.com")
-	url, err := url.Parse("https://life-force.appspot.com")
+	url, err := url.Parse("https://" + os.Args[1])
 	checkError(err)
 
-	// proxyUrl, _ := url.Parse("http://ip")
-	// transport := &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
-	transport := &http.Transport{}
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	client := &http.Client{Transport: transport}
 	fmt.Println(url.String())
 	request, err := http.NewRequest("GET", url.String(), nil)
-	request.Header.Add("Host", "google ip")
-	// only accept UTF-8
-	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
 	checkError(err)
-
+	request.Host = "life-force.appspot.com"
+	fmt.Println(request.Host)
 	response, err := client.Do(request)
+	checkError(err)
 	fmt.Println(response)
 	if response.Status != "200 OK" {
 		fmt.Println(response.Status)
