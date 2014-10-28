@@ -3,9 +3,19 @@ package gaeserver
 import (
 	"appengine"
 	"appengine/urlfetch"
+	"bytes"
+	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
+
+type RequestInfo struct {
+	Url    string
+	Header *http.Header
+	Method string
+	Body   *[]byte
+}
 
 func init() {
 	http.HandleFunc("/", root)
@@ -15,7 +25,7 @@ func init() {
 func root(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	resp, err := client.Get("https://www.google.com/")
+	resp, err := client.Get("http://www.baidu.com/")
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
@@ -30,5 +40,30 @@ func root(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetch(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("fetch"))
+	c := appengine.NewContext(r)
+	if r.Method == "GET" {
+		w.Write([]byte("fetch"))
+	} else {
+		decoder := json.NewDecoder(r.Body)
+		var t RequestInfo
+		err := decoder.Decode(&t)
+		if err != nil {
+			c.Errorf("err: %v", err)
+			return
+		}
+		request, err := http.NewRequest(t.Method, t.Url, bytes.NewBuffer(*t.Body))
+		if err != nil {
+			c.Errorf("err: %v", err)
+			return
+		}
+
+		client := urlfetch.Client(c)
+		resp, err := client.Do(request)
+		if err != nil {
+			c.Errorf("err: %v", err)
+			return
+		}
+		defer resp.Body.Close()
+		io.Copy(w, resp.Body)
+	}
 }

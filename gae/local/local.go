@@ -9,28 +9,38 @@ import (
 	//"net/url"
 	"bytes"
 	"io"
+	"io/ioutil"
 	"time"
 )
 
 type RequestInfo struct {
 	Url    string
 	Header *http.Header
+	Method string
+	Body   *[]byte
 }
 
 func OnRequest(w http.ResponseWriter, req *http.Request) {
 	Post(w, req)
 }
 func Post(w http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	rawrequest := &RequestInfo{
 		Url:    req.RequestURI,
 		Header: &req.Header,
+		Method: req.Method,
+		Body:   &body,
 	}
 	rJson, _ := json.Marshal(rawrequest)
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: transport}
-	request, err := http.NewRequest("POST", rawrequest.Url, bytes.NewBuffer(rJson))
+	request, err := http.NewRequest("POST", "https://0.0.0.0/fetch", bytes.NewBuffer(rJson))
+	request.Host = "gaeofgo.appspot.com"
 	if err != nil {
 		log.Fatal(err)
 	}
