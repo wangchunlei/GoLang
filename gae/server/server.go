@@ -47,6 +47,8 @@ func fetch(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		var t RequestInfo
 		err := decoder.Decode(&t)
+		info, _ := json.Marshal(t)
+		c.Infof("%v", string(info))
 		if err != nil {
 			c.Errorf("err: %v", err)
 			return
@@ -58,6 +60,10 @@ func fetch(w http.ResponseWriter, r *http.Request) {
 		}
 
 		client := urlfetch.Client(c)
+		client.Transport = &urlfetch.Transport{
+			Context: c,
+			AllowInvalidServerCertificate: true,
+		}
 		resp, err := client.Do(request)
 		if err != nil {
 			c.Errorf("err: %v", err)

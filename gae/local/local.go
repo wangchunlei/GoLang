@@ -1,16 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
-	"log"
-	"net/http"
-	//"net/url"
-	"bytes"
-	"io"
+	"github.com/elazarl/goproxy"
 	"io/ioutil"
-	"time"
+	"log"
+	"net"
+	"net/http"
+	"strings"
 )
 
 type RequestInfo struct {
@@ -20,16 +20,13 @@ type RequestInfo struct {
 	Body   *[]byte
 }
 
-func OnRequest(w http.ResponseWriter, req *http.Request) {
-	Post(w, req)
-}
-func Post(w http.ResponseWriter, req *http.Request) {
+func Post(req *http.Request) *http.Response {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 	rawrequest := &RequestInfo{
-		Url:    req.RequestURI,
+		Url:    strings.Replace(req.RequestURI, ":443", "", 1),
 		Header: &req.Header,
 		Method: req.Method,
 		Body:   &body,
@@ -39,7 +36,7 @@ func Post(w http.ResponseWriter, req *http.Request) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: transport}
-	request, err := http.NewRequest("POST", "https://0.0.0.0/fetch", bytes.NewBuffer(rJson))
+	request, err := http.NewRequest("POST", "https://203.233.63.168/fetch", bytes.NewBuffer(rJson))
 	request.Host = "gaeofgo.appspot.com"
 	if err != nil {
 		log.Fatal(err)
@@ -50,21 +47,27 @@ func Post(w http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
-	io.Copy(w, response.Body)
+	return response
 }
+
 func main() {
-	addr := flag.String("l", ":8888", "on which address should the proxy listen")
+	verbose := flag.Bool("v", false, "should every proxy request be logged to stdout")
+	addr := flag.String("addr", ":8888", "proxy listen address")
 	flag.Parse()
-	// target, err := url.Parse("http://192.168.70.118:8087")
-	// if err != nil {
-	// 	log.Fatal(err.Error())
-	// }
-	http.HandleFunc("/", OnRequest)
-	s := &http.Server{
-		Addr:           *addr,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	s.ListenAndServe()
+	proxy := goproxy.NewProxyHttpServer()
+	proxy.Verbose = *verbose
+
+	proxy.OnRequest().HijackConnect(func(req *http.Request, client net.Conn, ctx *goproxy.ProxyCtx) {
+		defer func() {
+			if e := recover(); e != nil {
+				ctx.Logf("error connecting to remote: %v", e)
+				client.Write([]byte("HTTP/1.1 500 Cannot reach destination\r\n\r\n"))
+			}
+			client.Close()
+		}()
+
+		log.Println(req.RequestURI)
+		ctx.Resp.Body = Post(req).Body
+	})
+	http.ListenAndServe(*addr, proxy)
 }
