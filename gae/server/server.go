@@ -58,7 +58,7 @@ func fetch(w http.ResponseWriter, r *http.Request) {
 			c.Errorf("err: %v", err)
 			return
 		}
-
+		request.Header.Add("Cookie", t.Header.Get("Cookie"))
 		client := urlfetch.Client(c)
 		client.Transport = &urlfetch.Transport{
 			Context: c,

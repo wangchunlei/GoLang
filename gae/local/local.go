@@ -8,9 +8,9 @@ import (
 	"github.com/elazarl/goproxy"
 	"io/ioutil"
 	"log"
-	"net"
+	//"net"
 	"net/http"
-	"strings"
+	//"strings"
 )
 
 type RequestInfo struct {
@@ -26,7 +26,7 @@ func Post(req *http.Request) *http.Response {
 		log.Fatal(err)
 	}
 	rawrequest := &RequestInfo{
-		Url:    strings.Replace(req.RequestURI, ":443", "", 1),
+		Url:    req.URL.String(),
 		Header: &req.Header,
 		Method: req.Method,
 		Body:   &body,
@@ -36,7 +36,7 @@ func Post(req *http.Request) *http.Response {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: transport}
-	request, err := http.NewRequest("POST", "https://203.233.63.168/fetch", bytes.NewBuffer(rJson))
+	request, err := http.NewRequest("POST", "https://64.233.169.106/fetch", bytes.NewBuffer(rJson))
 	request.Host = "gaeofgo.appspot.com"
 	if err != nil {
 		log.Fatal(err)
@@ -46,7 +46,6 @@ func Post(req *http.Request) *http.Response {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer response.Body.Close()
 	return response
 }
 
@@ -57,17 +56,15 @@ func main() {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Verbose = *verbose
 
-	proxy.OnRequest().HijackConnect(func(req *http.Request, client net.Conn, ctx *goproxy.ProxyCtx) {
-		defer func() {
-			if e := recover(); e != nil {
-				ctx.Logf("error connecting to remote: %v", e)
-				client.Write([]byte("HTTP/1.1 500 Cannot reach destination\r\n\r\n"))
-			}
-			client.Close()
-		}()
-
-		log.Println(req.RequestURI)
-		ctx.Resp.Body = Post(req).Body
+	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
+	proxy.OnRequest().DoFunc(func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+		if req.URL.Scheme == "https" {
+			req.URL.Scheme = "http"
+			req.URL.Host = req.Host + ":80"
+		}
+		log.Println(req.URL)
+		return req, Post(req)
 	})
+
 	http.ListenAndServe(*addr, proxy)
 }
