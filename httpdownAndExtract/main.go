@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	os.Setenv("HTTP_PROXY", "http://127.0.0.1:8087")
 	url := "https://nodeload.github.com/goagent/goagent/legacy.zip/3.0"
 	location := "/home/wangcl"
 	if len(os.Args) == 3 {
@@ -61,7 +62,7 @@ func unzip(resp *http.Response, dest string) error {
 		}
 		defer rc.Close()
 		fn := strings.Join(strings.Split(f.Name, "/")[1:], "/")
-		path := filepath.Join(dest, "goagent", fn)
+		path := filepath.Join(dest, "goagent_tmp", fn)
 		if f.FileInfo().IsDir() {
 			os.MkdirAll(path, f.Mode())
 		} else {
